@@ -1,0 +1,73 @@
+.search-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.text-box-search .MuiOutlinedInput-root,
+.text-box-search.dark-bg {
+  border-radius: 10px;
+  width: 1000px;
+}
+
+.dark-bg .MuiOutlinedInput-root {
+  color: #dfe4ec;
+}
+
+.checked-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.metadata-accordian {
+  padding: "10px";
+}
+
+.called-chart {
+  display: flex;
+  justify-content: center;
+}
+
+.token-chart {
+  display: flex;
+  justify-content: center;
+}
+
+.center-loader {
+  justify-content: center;
+  display: flex;
+}
+
+.market-cap-link a {
+  color: #008ffb;
+}
+
+.report-scam-btn {
+  background-color: #e9dee2 !important;
+  color: #eb5757 !important;
+  height: 45px !important;
+  margin-left: 25px !important;
+  margin-top: 0.2rem !important;
+}
+
+.report-scam-btn-dark {
+  background-color: rgba(235, 87, 87, 0.1) !important;
+  color: #eb5757 !important;
+  height: 45px !important;
+  margin-left: 25px !important;
+  margin-top: 0.2rem !important;
+}
+
+.table-border-dark {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.border-radius-dark {
+  border-radius: 25px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(193px);
+}
+
+/* background: 
+linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
+linear-gradient(0deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)); */
