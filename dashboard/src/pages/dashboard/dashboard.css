@@ -68,6 +68,16 @@
   backdrop-filter: blur(193px);
 }
 
+.help-icon {
+  color: #4f4f4f !important;
+  padding: 2px;
+}
+
+.help-icon-dark {
+  color: #d4e4ec !important;
+  padding: 2px;
+}
+
 /* background: 
 linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
 linear-gradient(0deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)); */

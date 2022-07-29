@@ -18,6 +18,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import TableHead from "@mui/material/TableHead";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
   BarChart,
   Bar,
@@ -54,10 +55,102 @@ function Dashboard({ darkTheme }) {
   const [loading, setLoading] = useState(false);
   const [numOfToken, setNumOfToken] = useState([]);
   const [uniqueCallers, setUniqueCallers] = useState([]);
+  const [tokenMonthSelected, setTokenMonthSelected] = useState(1);
+  const [callerMonthSelected, setCallerMonthSelected] = useState(1);
+  const [callerData, setCallerData] = useState([]);
+  const [tokenData, setTokenData] = useState([]);
 
   useEffect(() => {
-    console.log(searched);
-  });
+    setCallerData(initCallers());
+    setCallerData(initToken());
+  }, []);
+
+  const initCallers = () => {
+    return [
+      {
+        name: "Sun",
+        external_callers: 0,
+        senders: 0,
+        txs: 0,
+      },
+      {
+        name: "Mon",
+        external_callers: 0,
+        senders: 0,
+        txs: 0,
+      },
+      {
+        name: "Tue",
+        external_callers: 0,
+        senders: 0,
+        txs: 0,
+      },
+      {
+        name: "Wed",
+        external_callers: 0,
+        senders: 0,
+        txs: 0,
+      },
+      {
+        name: "Thu",
+        external_callers: 0,
+        senders: 0,
+        txs: 0,
+      },
+      {
+        name: "Fri",
+        external_callers: 0,
+        senders: 0,
+        txs: 0,
+      },
+      {
+        name: "Sat",
+        external_callers: 0,
+        senders: 0,
+        txs: 0,
+      },
+    ];
+  };
+
+  const initToken = () => {
+    return [
+      {
+        name: "Sun",
+        count: 0,
+        amount: 0,
+      },
+      {
+        name: "Mon",
+        count: 0,
+        amount: 0,
+      },
+      {
+        name: "Tue",
+        count: 0,
+        amount: 0,
+      },
+      {
+        name: "Wed",
+        count: 0,
+        amount: 0,
+      },
+      {
+        name: "Thu",
+        count: 0,
+        amount: 0,
+      },
+      {
+        name: "Fri",
+        count: 0,
+        amount: 0,
+      },
+      {
+        name: "Sat",
+        count: 0,
+        amount: 0,
+      },
+    ];
+  };
 
   const handleSearch = (event) => {
     setSearched(event.target.value);
@@ -75,7 +168,11 @@ function Dashboard({ darkTheme }) {
         .then((resp) => {
           setUserInfo(resp[0].data);
           setUniqueCallers(resp[1].data);
+          filterUniqueCallers(resp[1].data, 1);
+          setCallerMonthSelected(1);
           setNumOfToken(resp[2].data);
+          filterTokens(resp[2].data, 1);
+          setTokenMonthSelected(1);
           setLoading(false);
         })
         .catch((err) => {
@@ -94,40 +191,50 @@ function Dashboard({ darkTheme }) {
     return false;
   };
 
-  const handleCallersChange = (e) => {};
+  const handleCallersChange = (e) => {
+    setCallerMonthSelected(e.target.value);
+    filterUniqueCallers(uniqueCallers, e.target.value);
+  };
 
-  const number_of_unique_caller_data = [
-    {
-      name: "Mon",
-      uv: 2,
-      pv: 4,
-    },
-    {
-      name: "Tue",
-      uv: 2,
-      pv: 1,
-    },
-    {
-      name: "Wed",
-      uv: 5,
-      pv: 10,
-    },
-    {
-      name: "Mon",
-      uv: 2,
-      pv: 4,
-    },
-    {
-      name: "Thu",
-      uv: 1,
-      pv: 1,
-    },
-    {
-      name: "Fri",
-      uv: 2,
-      pv: 3,
-    },
-  ];
+  const handleTokenChange = (e) => {
+    setTokenMonthSelected(e.target.value);
+    filterTokens(numOfToken, e.target.value);
+  };
+
+  const filterUniqueCallers = (data, selectedMonth) => {
+    var newCallerData = initCallers();
+
+    data.map((item) => {
+      const date = new Date(item.date.date);
+
+      if (date.getMonth() + 1 == selectedMonth) {
+        const day = date.getDay();
+
+        newCallerData[day].external_callers += parseInt(item.external_callers);
+        newCallerData[day].senders += parseInt(item.senders);
+        newCallerData[day].txs += parseInt(item.txs);
+      }
+    });
+
+    setCallerData(newCallerData);
+  };
+
+  const filterTokens = (data, selectedMonth) => {
+    var newTokenData = initToken();
+
+    data.map((item) => {
+      const date = new Date(item.date.date);
+
+      if (date.getMonth() + 1 == selectedMonth) {
+        const day = date.getDay();
+
+        newTokenData[day].count += parseInt(item.count);
+        newTokenData[day].amount += parseInt(item.amount);
+      }
+    });
+
+    setTokenData(newTokenData);
+  };
 
   return (
     <Grid
@@ -238,6 +345,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Type of Contract:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           component="th"
@@ -263,6 +376,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Name:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -288,6 +407,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Symbol:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -313,6 +438,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           If the contract is verified on etherscan:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -327,7 +458,12 @@ function Dashboard({ darkTheme }) {
                               style={{ color: "#00E396", padding: "0 3px" }}
                               sx={{ fontSize: "15px" }}
                             />
-                            <div style={{ display: 'inline-block', color: "#00E396"}}>
+                            <div
+                              style={{
+                                display: "inline-block",
+                                color: "#00E396",
+                              }}
+                            >
                               {humanize(userInfo.metaData?.contractVerified) ||
                                 "unknown"}
                             </div>
@@ -347,9 +483,17 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Listed on coin market cap:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                           <div className="market-cap-link">
-                            <a href="https://test.org">
-                              https://test.org
+                            <a href={userInfo.metaData?.info?.urls?.website ||
+                                "#"}>
+                              {userInfo.metaData?.info?.urls?.website||
+                                "unknown"}
                               <OpenInNewIcon sx={{ fontSize: 13 }} />
                             </a>
                           </div>
@@ -379,6 +523,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Listed and verified on marketplace (for erc721):
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -403,6 +553,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Closer NFT:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={darkTheme && "light-font"}
@@ -478,6 +634,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           First Transfer Date:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -504,6 +666,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Last Transfer Date:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -529,6 +697,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Days Token Transfers:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -556,6 +730,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Unique Holders:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -581,6 +761,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           NB Of Transfer:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -606,6 +792,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Uniq Senders:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -631,6 +823,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Uniq Receivers:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={
@@ -654,6 +852,12 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Ratio:
+                          <HelpOutlineIcon
+                            className={
+                              darkTheme ? "help-icon-dark" : "help-icon"
+                            }
+                            sx={{ fontSize: 13 }}
+                          />
                         </TableCell>
                         <TableCell
                           className={darkTheme && "light-font"}
@@ -762,60 +966,10 @@ function Dashboard({ darkTheme }) {
       </Grid>
       <Grid item xs={6}>
         <div className="token-chart">
-          <Paper className={darkTheme && "dark-bg light-font border-radius-dark"} style={{ padding: "20px" }}>
-            <div
-              style={{
-                marginBottom: "20px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }}
-            >
-              <Typography style={{ fontWeight: "bold" }}>
-                Number of Unique Caller
-              </Typography>
-              <FormControl style={{ width: "5rem" }}>
-                <InputLabel className={darkTheme && "light-font"} id="">Day</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={10}
-                  label="Age"
-                  onChange={handleCallersChange}
-                >
-                  <MenuItem value={10}>Mon</MenuItem>
-                  <MenuItem value={20}>Tue</MenuItem>
-                  <MenuItem value={30}>Wed</MenuItem>
-                  <MenuItem value={30}>Thu</MenuItem>
-                  <MenuItem value={30}>Fri</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-            <BarChart
-              width={600}
-              height={300}
-              data={number_of_unique_caller_data}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-              barCategoryGap="25%"
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis axisLine={false} tickLine={false} dataKey="name" />
-              <YAxis axisLine={false} tickLine={false} />
-              <Tooltip />
-              <Bar dataKey="pv" fill="#00E396" />
-              <Bar dataKey="uv" fill="#008FFB" />
-            </BarChart>
-          </Paper>
-        </div>
-      </Grid>
-      <Grid item xs={6}>
-        <div className="token-chart">
-          <Paper className={darkTheme && "dark-bg light-font border-radius-dark"} style={{ padding: "20px" }}>
+          <Paper
+            className={darkTheme && "dark-bg light-font border-radius-dark"}
+            style={{ padding: "20px" }}
+          >
             <div
               style={{
                 marginBottom: "20px",
@@ -828,34 +982,95 @@ function Dashboard({ darkTheme }) {
                 Number of Unique Caller
               </Typography>
               <FormControl style={{ width: "5rem" }}>
-                <InputLabel className={darkTheme && "light-font"} id="">Day</InputLabel>
+                <InputLabel className={darkTheme && "light-font"} id="">
+                  Week
+                </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  // value={age}
-                  label="Age"
-                  // onChange={handleChange}
+                  value={callerMonthSelected}
+                  label="week"
+                  onChange={handleCallersChange}
                 >
-                  <MenuItem value={10}>Mon</MenuItem>
-                  <MenuItem value={20}>Tue</MenuItem>
-                  <MenuItem value={30}>Wed</MenuItem>
-                  <MenuItem value={30}>Thu</MenuItem>
-                  <MenuItem value={30}>Fri</MenuItem>
+                  {[...Array(12).keys()].map((item) => (
+                    <MenuItem key={item} value={item + 1}>
+                      {item + 1}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <BarChart
+              width={600}
+              height={300}
+              data={callerData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+              barCategoryGap="25%"
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis axisLine={false} tickLine={false} dataKey="name" />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip />
+              <Bar dataKey="external_callers" fill="#00E396" />
+              <Bar dataKey="senders" fill="#008FFB" />
+              <Bar dataKey="txs" fill="#808080" />
+            </BarChart>
+          </Paper>
+        </div>
+      </Grid>
+      <Grid item xs={6}>
+        <div className="token-chart">
+          <Paper
+            className={darkTheme && "dark-bg light-font border-radius-dark"}
+            style={{ padding: "20px" }}
+          >
+            <div
+              style={{
+                marginBottom: "20px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography style={{ fontWeight: "bold" }}>
+                Number of Token
+              </Typography>
+              <FormControl style={{ width: "5rem" }}>
+                <InputLabel className={darkTheme && "light-font"} id="">
+                  Week
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={tokenMonthSelected}
+                  label="week"
+                  onChange={handleTokenChange}
+                >
+                  {[...Array(12).keys()].map((item) => (
+                    <MenuItem key={item} value={item + 1}>
+                      {item + 1}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </div>
             <AreaChart
               width={600}
               height={300}
-              data={number_of_unique_caller_data}
+              data={tokenData}
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
               <defs>
-                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#00E396" stopOpacity={0.8} />
                   <stop offset="95%" stopColor="#00E396" stopOpacity={0} />
                 </linearGradient>
-                <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#008FFB" stopOpacity={0.8} />
                   <stop offset="95%" stopColor="#008FFB" stopOpacity={0} />
                 </linearGradient>
@@ -866,17 +1081,17 @@ function Dashboard({ darkTheme }) {
               <Tooltip />
               <Area
                 type="monotone"
-                dataKey="uv"
+                dataKey="amount"
                 stroke="#00E396"
                 fillOpacity={1}
-                fill="url(#colorUv)"
+                fill="url(#colorAmount)"
               />
               <Area
                 type="monotone"
-                dataKey="pv"
+                dataKey="count"
                 stroke="#008FFB"
                 fillOpacity={1}
-                fill="url(#colorPv)"
+                fill="url(#colorCount)"
               />
             </AreaChart>
           </Paper>
@@ -954,8 +1169,6 @@ function Dashboard({ darkTheme }) {
       </Grid>
     </Grid>
   );
-
-  
 }
 
 export default Dashboard;
