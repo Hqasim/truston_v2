@@ -19,6 +19,7 @@ import TableRow from "@mui/material/TableRow";
 import TableHead from "@mui/material/TableHead";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import ReactTooltip from "@mui/material/Tooltip";
 import {
   BarChart,
   Bar,
@@ -248,6 +249,7 @@ function Dashboard({ darkTheme }) {
       <Grid item xs={12}>
         <div className="search-wrapper">
           <TextField
+            fullWidth
             id="search-bar"
             InputProps={{
               startAdornment: (
@@ -256,19 +258,21 @@ function Dashboard({ darkTheme }) {
                 </InputAdornment>
               ),
               endAdornment: (
-                <Button
-                  onClick={() => fetchData()}
-                  variant="contained"
-                  className={darkTheme && "dark-font"}
-                  style={{
-                    backgroundColor: "#00E396",
-                    borderRadius: "10px",
-                    marginRight: "-8px",
-                    height: "43px",
-                  }}
-                >
-                  Search
-                </Button>
+                <InputAdornment position='end'>
+                  <Button
+                    onClick={() => fetchData()}
+                    variant="contained"
+                    className={darkTheme && "dark-font"}
+                    style={{
+                      backgroundColor: "#00E396",
+                      borderRadius: "10px",
+                      marginRight: "-8px",
+                      height: "43px",
+                    }}
+                  >
+                    Search
+                  </Button>
+                </InputAdornment>
               ),
             }}
             value={searched}
@@ -305,10 +309,12 @@ function Dashboard({ darkTheme }) {
           />
         </div>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item md={6}>
         <div className="metadata-accordian">
           <Accordion
-            className={darkTheme && "dark-bg light-font border-radius-dark"}
+            className={
+              darkTheme && "table-inner-dark light-font border-radius-dark"
+            }
             defaultExpanded={true}
           >
             <AccordionSummary
@@ -345,12 +351,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Type of Contract:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Type of Contract">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           component="th"
@@ -376,12 +384,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Name:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Name">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -407,12 +417,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Symbol:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Symbol">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -438,12 +450,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           If the contract is verified on etherscan:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="verified contract">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -483,19 +497,27 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Listed on coin market cap:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Listing">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                           <div className="market-cap-link">
-                            <a href={userInfo.metaData?.info?.urls?.website ||
-                                "#"}>
-                              {userInfo.metaData?.info?.urls?.website||
-                                "unknown"}
-                              <OpenInNewIcon sx={{ fontSize: 13 }} />
-                            </a>
+                            {userInfo.metaData?.info?.urls?.website.map(
+                              (url, index) => (
+                                <a
+                                  key={index}
+                                  href={url || "#"}
+                                  style={{ display: "block" }}
+                                >
+                                  {url || "unknown"}
+                                  <OpenInNewIcon sx={{ fontSize: 13 }} />
+                                </a>
+                              )
+                            )}
                           </div>
                         </TableCell>
                         <TableCell
@@ -523,12 +545,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Listed and verified on marketplace (for erc721):
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Listing and verification">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -553,12 +577,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Closer NFT:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Closer NFT">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={darkTheme && "light-font"}
@@ -592,10 +618,12 @@ function Dashboard({ darkTheme }) {
           </Accordion>
         </div>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item md={6}>
         <div className="transactions-accordian">
           <Accordion
-            className={darkTheme && "dark-bg light-font border-radius-dark"}
+            className={
+              darkTheme && "table-inner-dark light-font border-radius-dark"
+            }
             defaultExpanded={true}
           >
             <AccordionSummary
@@ -634,12 +662,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           First Transfer Date:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Transfer Date">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -666,12 +696,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Last Transfer Date:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Transfer Date">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -697,12 +729,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Days Token Transfers:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Token Transfers">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -730,12 +764,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Unique Holders:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Unique Holders">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -761,12 +797,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           NB Of Transfer:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="NB of Transfer">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -792,12 +830,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Uniq Senders:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Uniq Senders">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -823,12 +863,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Uniq Receivers:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Uniq Receivers">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={
@@ -852,12 +894,14 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                         >
                           Ratio:
-                          <HelpOutlineIcon
-                            className={
-                              darkTheme ? "help-icon-dark" : "help-icon"
-                            }
-                            sx={{ fontSize: 13 }}
-                          />
+                          <ReactTooltip title="Ratio">
+                            <HelpOutlineIcon
+                              className={
+                                darkTheme ? "help-icon-dark" : "help-icon"
+                              }
+                              sx={{ fontSize: 13 }}
+                            />
+                          </ReactTooltip>
                         </TableCell>
                         <TableCell
                           className={darkTheme && "light-font"}
@@ -881,7 +925,9 @@ function Dashboard({ darkTheme }) {
       <Grid item xs={12}>
         <div className="user-info-accordian">
           <Accordion
-            className={darkTheme && "dark-bg light-font border-radius-dark"}
+            className={
+              darkTheme && "table-inner-dark light-font border-radius-dark"
+            }
             defaultExpanded={true}
           >
             <AccordionSummary
@@ -964,10 +1010,12 @@ function Dashboard({ darkTheme }) {
           </Accordion>
         </div>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item md={6}>
         <div className="token-chart">
           <Paper
-            className={darkTheme && "dark-bg light-font border-radius-dark"}
+            className={
+              darkTheme && "table-inner-dark light-font border-radius-dark"
+            }
             style={{ padding: "20px" }}
           >
             <div
@@ -991,6 +1039,8 @@ function Dashboard({ darkTheme }) {
                   value={callerMonthSelected}
                   label="week"
                   onChange={handleCallersChange}
+                  className={darkTheme && "light-font"}
+                  style={{ border: "1px solid" }}
                 >
                   {[...Array(12).keys()].map((item) => (
                     <MenuItem key={item} value={item + 1}>
@@ -1023,10 +1073,12 @@ function Dashboard({ darkTheme }) {
           </Paper>
         </div>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item md={6}>
         <div className="token-chart">
           <Paper
-            className={darkTheme && "dark-bg light-font border-radius-dark"}
+            className={
+              darkTheme && "table-inner-dark light-font border-radius-dark"
+            }
             style={{ padding: "20px" }}
           >
             <div
@@ -1050,6 +1102,8 @@ function Dashboard({ darkTheme }) {
                   value={tokenMonthSelected}
                   label="week"
                   onChange={handleTokenChange}
+                  className={darkTheme && "light-font"}
+                  style={{ border: "1px solid" }}
                 >
                   {[...Array(12).keys()].map((item) => (
                     <MenuItem key={item} value={item + 1}>
@@ -1073,6 +1127,10 @@ function Dashboard({ darkTheme }) {
                 <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#008FFB" stopOpacity={0.8} />
                   <stop offset="95%" stopColor="#008FFB" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="progressColour" x1="1" y1="0" x2="0" y2="0">
+                  <stop offset="15%" stopColor="#0091FF" stopOpacity={0} />
+                  <stop offset="100%" stopColor="#0091FF" stopOpacity={1} />
                 </linearGradient>
               </defs>
               <XAxis axisLine={false} tickLine={false} dataKey="name" />
@@ -1100,7 +1158,9 @@ function Dashboard({ darkTheme }) {
       <Grid item xs={12}>
         <div className="bonus-accordian">
           <Accordion
-            className={darkTheme && "dark-bg light-font border-radius-dark"}
+            className={
+              darkTheme && "table-inner-dark light-font border-radius-dark"
+            }
             defaultExpanded={true}
           >
             <AccordionSummary
@@ -1154,13 +1214,24 @@ function Dashboard({ darkTheme }) {
                   <Typography style={{ fontWeight: "bold" }}>
                     Fiability score{" "}
                   </Typography>
+
                   <Circle
                     style={{ width: "100px", marginTop: "1rem" }}
-                    percent={userInfo.bonus?.trustonScore || 0}
-                    strokeWidth={4}
-                    trailWidth={4}
-                    strokeColor="#0091FF"
+                    percent={userInfo.bonus?.trustonScore || 50}
+                    strokeWidth={14}
+                    trailWidth={14}
+                    strokeColor="url(#progressColour)"
                   />
+                  <div
+                    style={
+                      userInfo.bonus?.trustonScore > 0
+                        ? { color: "green" }
+                        : { color: "red" }
+                    }
+                    className="progress-text"
+                  >
+                    {userInfo.bonus?.trustonScore || 0} %
+                  </div>
                 </Grid>
               </Grid>
             </AccordionDetails>
@@ -1172,3 +1243,5 @@ function Dashboard({ darkTheme }) {
 }
 
 export default Dashboard;
+
+// background: "linear-gradient(to top bottom, #430089, #82ffa1)"

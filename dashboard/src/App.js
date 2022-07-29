@@ -13,7 +13,7 @@ function App() {
     <div className={darkTheme && 'full-dark-bg'}>
       <Header darkTheme={darkTheme} setDarkTheme={setDarkTheme} />
       <Dashboard darkTheme={darkTheme} />
-      <ToastContainer position='bottom-right' hideProgressBar='true' />
+      <ToastContainer position='bottom-right' hideProgressBar='true' theme={darkTheme ? 'dark' : 'light'}  />
     </div>
   );
 }

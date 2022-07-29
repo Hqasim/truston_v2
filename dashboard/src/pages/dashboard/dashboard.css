@@ -2,12 +2,14 @@
   display: flex;
   justify-content: center;
   margin-top: 1rem;
+  margin-left: 5rem;
+  margin-right: 5rem;
 }
 
 .text-box-search .MuiOutlinedInput-root,
 .text-box-search.dark-bg {
   border-radius: 10px;
-  width: 1000px;
+  /* width: 1000px; */
 }
 
 .dark-bg .MuiOutlinedInput-root {
@@ -62,6 +64,10 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
+.table-inner-dark {
+  background: linear-gradient(to right, #282342, #2b3c5d 330px, #282342 800px) !important
+}
+
 .border-radius-dark {
   border-radius: 25px !important;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -71,11 +77,20 @@
 .help-icon {
   color: #4f4f4f !important;
   padding: 2px;
+  cursor: pointer;
 }
 
 .help-icon-dark {
   color: #d4e4ec !important;
   padding: 2px;
+  cursor: pointer;
+}
+
+.progress-text {
+  position: relative;
+  top: -61px;
+  left: 30px;
+  font-weight: 800;
 }
 
 /* background: 
