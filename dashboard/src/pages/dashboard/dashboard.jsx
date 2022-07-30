@@ -285,6 +285,10 @@ function Dashboard({ darkTheme }) {
           <Button
             variant="contained"
             className={darkTheme ? "report-scam-btn-dark" : "report-scam-btn"}
+            style={{
+              whiteSpace: 'nowrap',
+              textAlign: 'center'
+            }}
           >
             Report Scam
           </Button>
@@ -1179,7 +1183,7 @@ function Dashboard({ darkTheme }) {
                 spacing={2}
                 style={{ padding: "3rem" }}
               >
-                <Grid item xs={3}>
+                <Grid item>
                   <Stack>
                     <Typography style={{ fontWeight: "bold" }}>
                       Twitter Sentiment Analysis
@@ -1196,7 +1200,7 @@ function Dashboard({ darkTheme }) {
                     </Typography>
                   </Stack>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item>
                   <Typography style={{ fontWeight: "bold" }}>
                     Count number of tweet associated with the address
                   </Typography>
@@ -1210,7 +1214,7 @@ function Dashboard({ darkTheme }) {
                     {userInfo.bonus?.tweetNb || "unknown"}
                   </Typography>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item>
                   <Typography style={{ fontWeight: "bold" }}>
                     Fiability score{" "}
                   </Typography>
@@ -1225,8 +1229,8 @@ function Dashboard({ darkTheme }) {
                   <div
                     style={
                       userInfo.bonus?.trustonScore > 0
-                        ? { color: "green" }
-                        : { color: "red" }
+                        ? { color: "green", marginLeft: '0.5rem' }
+                        : { color: "red", marginLeft: '0.5rem' }
                     }
                     className="progress-text"
                   >
@@ -1243,5 +1247,3 @@ function Dashboard({ darkTheme }) {
 }
 
 export default Dashboard;
-
-// background: "linear-gradient(to top bottom, #430089, #82ffa1)"
