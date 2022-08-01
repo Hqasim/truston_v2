@@ -39,7 +39,7 @@ import Stack from "@mui/material/Stack";
 import { Line, Circle } from "rc-progress";
 import { toast } from "react-toastify";
 import { Oval } from "react-loader-spinner";
-import { humanize } from "../../utilities";
+import { humanize, mod } from "../../utilities";
 
 import {
   token_count,
@@ -50,107 +50,99 @@ import {
 import "./dashboard.css";
 
 function Dashboard({ darkTheme }) {
+  const selector = ["Daily", "Weekly", "Monthly"];
+  const daily = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekly = [
+    "1st Week",
+    "2nd Week",
+    "3rd Week",
+    "4th Week",
+    "5th Week",
+    "6th Week",
+    "7th Week",
+  ];
+  const monthly = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const [searched, setSearched] = useState("");
   const [dayToken, setDayToken] = useState("");
   const [userInfo, setUserInfo] = useState({});
   const [loading, setLoading] = useState(false);
   const [numOfToken, setNumOfToken] = useState([]);
   const [uniqueCallers, setUniqueCallers] = useState([]);
-  const [tokenMonthSelected, setTokenMonthSelected] = useState(1);
-  const [callerMonthSelected, setCallerMonthSelected] = useState(1);
+  const [tokenTypeSelected, setTokenTypeSelected] = useState(selector[0]);
+  const [callerTypeSelected, setCallerMonthSelected] = useState(selector[0]);
   const [callerData, setCallerData] = useState([]);
   const [tokenData, setTokenData] = useState([]);
 
   useEffect(() => {
-    setCallerData(initCallers());
-    setCallerData(initToken());
+    setCallerData(initCallers(callerTypeSelected));
+    setTokenData(initToken(tokenTypeSelected));
   }, []);
 
-  const initCallers = () => {
-    return [
-      {
-        name: "Sun",
-        external_callers: 0,
-        senders: 0,
-        txs: 0,
-      },
-      {
-        name: "Mon",
-        external_callers: 0,
-        senders: 0,
-        txs: 0,
-      },
-      {
-        name: "Tue",
-        external_callers: 0,
-        senders: 0,
-        txs: 0,
-      },
-      {
-        name: "Wed",
-        external_callers: 0,
-        senders: 0,
-        txs: 0,
-      },
-      {
-        name: "Thu",
-        external_callers: 0,
-        senders: 0,
-        txs: 0,
-      },
-      {
-        name: "Fri",
-        external_callers: 0,
-        senders: 0,
-        txs: 0,
-      },
-      {
-        name: "Sat",
-        external_callers: 0,
-        senders: 0,
-        txs: 0,
-      },
-    ];
+  const initGraphData = (type) => {
+    var data = [];
+
+    switch (type) {
+      case selector[0]:
+        data = daily.map((item) => ({
+          name: item,
+        }));
+
+        break;
+      case selector[1]:
+        data = weekly.map((item) => ({
+          name: item,
+        }));
+
+        break;
+      case selector[2]:
+        const monthNumber = new Date().getMonth();
+        let startNumber = mod(monthNumber - 6, 12);
+
+        for (let index = 0; index < 7; index++) {
+          data.push({
+            name: monthly[startNumber],
+          });
+          startNumber = (startNumber + 1) % 12;
+        }
+
+        break;
+      default:
+        break;
+    }
+
+    return data;
   };
 
-  const initToken = () => {
-    return [
-      {
-        name: "Sun",
-        count: 0,
-        amount: 0,
-      },
-      {
-        name: "Mon",
-        count: 0,
-        amount: 0,
-      },
-      {
-        name: "Tue",
-        count: 0,
-        amount: 0,
-      },
-      {
-        name: "Wed",
-        count: 0,
-        amount: 0,
-      },
-      {
-        name: "Thu",
-        count: 0,
-        amount: 0,
-      },
-      {
-        name: "Fri",
-        count: 0,
-        amount: 0,
-      },
-      {
-        name: "Sat",
-        count: 0,
-        amount: 0,
-      },
-    ];
+  const initCallers = (type) => {
+    const graphData = initGraphData(type);
+
+    return graphData.map((item) => ({
+      ...item,
+      external_callers: 0,
+      senders: 0,
+    }));
+  };
+
+  const initToken = (type) => {
+    const graphData = initGraphData(type);
+
+    return graphData.map((item) => ({
+      ...item,
+      count: 0,
+    }));
   };
 
   const handleSearch = (event) => {
@@ -158,7 +150,6 @@ function Dashboard({ darkTheme }) {
   };
 
   const fetchData = () => {
-    // 0x7b69c4f2acf77300025e49dbdbb65b068b2fda7d
     if (validate()) {
       setLoading(true);
       Promise.all([
@@ -168,18 +159,16 @@ function Dashboard({ darkTheme }) {
       ])
         .then((resp) => {
           setUserInfo(resp[0].data);
+
           setUniqueCallers(resp[1].data);
-          filterUniqueCallers(resp[1].data, 1);
-          setCallerMonthSelected(1);
+          filterUniqueCallers(resp[1].data, tokenTypeSelected);
+
           setNumOfToken(resp[2].data);
-          filterTokens(resp[2].data, 1);
-          setTokenMonthSelected(1);
+          filterTokens(resp[2].data, tokenTypeSelected);
+
           setLoading(false);
         })
-        .catch((err) => {
-          console.error(err);
-          toast.error("Something went wrong");
-        });
+        .catch((err) => toast.error("Something went wrong"));
     } else {
       toast.error("Invalid input address provided");
     }
@@ -198,39 +187,169 @@ function Dashboard({ darkTheme }) {
   };
 
   const handleTokenChange = (e) => {
-    setTokenMonthSelected(e.target.value);
+    setTokenTypeSelected(e.target.value);
     filterTokens(numOfToken, e.target.value);
   };
 
-  const filterUniqueCallers = (data, selectedMonth) => {
-    var newCallerData = initCallers();
+  const getPrevWeekDate = (currentDate, range) => {
+    currentDate.setDate(currentDate.getDate() - range);
+    return currentDate;
+  };
+
+  const dateIsBetween = (date, startDate, endDate) => {
+    if (date > startDate && date <= endDate) return true;
+
+    return false;
+  };
+
+  const monthIsBetween = (month, startMonth, endMonth) => {
+    if (month >= startMonth && month <= endMonth) return true;
+
+    return false;
+  };
+
+  const filterUniqueCallers = (data, selectedType) => {
+    var newCallerData = initCallers(selectedType);
+    let currentDate = new Date();
 
     data.map((item) => {
       const date = new Date(item.date.date);
 
-      if (date.getMonth() + 1 == selectedMonth) {
-        const day = date.getDay();
+      switch (selectedType) {
+        case selector[0]:
+          const currentStartDate = getPrevWeekDate(currentDate, 7);
 
-        newCallerData[day].external_callers += parseInt(item.external_callers);
-        newCallerData[day].senders += parseInt(item.senders);
-        newCallerData[day].txs += parseInt(item.txs);
+          if (dateIsBetween(date, currentStartDate, currentDate)) {
+            const day = date.getDay();
+            newCallerData[day].external_callers = parseInt(
+              item.external_callers
+            );
+            newCallerData[day].senders = parseInt(item.senders);
+          }
+          break;
+
+        case selector[1]:
+          const firstWeekDate = getPrevWeekDate(currentDate, 49);
+          const secondWeekDate = getPrevWeekDate(currentDate, 42);
+          const thirdWeekDate = getPrevWeekDate(currentDate, 35);
+          const fourthWeekDate = getPrevWeekDate(currentDate, 28);
+          const fifthWeekDate = getPrevWeekDate(currentDate, 21);
+          const sixthWeekDate = getPrevWeekDate(currentDate, 14);
+          const seventhWeekDate = getPrevWeekDate(currentDate, 7);
+
+          if (dateIsBetween(date, firstWeekDate, secondWeekDate)) {
+            newCallerData[0].external_callers += parseInt(
+              item.external_callers
+            );
+            newCallerData[0].senders += parseInt(item.senders);
+          } else if (dateIsBetween(date, secondWeekDate, thirdWeekDate)) {
+            newCallerData[1].external_callers += parseInt(
+              item.external_callers
+            );
+            newCallerData[1].senders += parseInt(item.senders);
+          } else if (dateIsBetween(date, thirdWeekDate, fourthWeekDate)) {
+            newCallerData[2].external_callers += parseInt(
+              item.external_callers
+            );
+            newCallerData[2].senders += parseInt(item.senders);
+          } else if (dateIsBetween(date, fourthWeekDate, fifthWeekDate)) {
+            newCallerData[3].external_callers += parseInt(
+              item.external_callers
+            );
+            newCallerData[3].senders += parseInt(item.senders);
+          } else if (dateIsBetween(date, fifthWeekDate, sixthWeekDate)) {
+            newCallerData[4].external_callers += parseInt(
+              item.external_callers
+            );
+            newCallerData[4].senders += parseInt(item.senders);
+          } else if (dateIsBetween(date, sixthWeekDate, seventhWeekDate)) {
+            newCallerData[5].external_callers += parseInt(
+              item.external_callers
+            );
+            newCallerData[5].senders += parseInt(item.senders);
+          } else if (dateIsBetween(date, seventhWeekDate, currentDate)) {
+            newCallerData[6].external_callers += parseInt(
+              item.external_callers
+            );
+            newCallerData[6].senders += parseInt(item.senders);
+          }
+
+          break;
+        case selector[2]:
+          const currentMonth = currentDate.getMonth();
+          const startingMonth = mod(currentMonth - 6, 12);
+          const month = date.getMonth();
+          
+          if (monthIsBetween(month, startingMonth, currentMonth)) {
+            const index = month - startingMonth;
+            newCallerData[index].external_callers += parseInt(item.external_callers);
+            newCallerData[index].senders += parseInt(item.senders);
+          }
+
+          break;
+        default:
+          break;
       }
     });
 
     setCallerData(newCallerData);
   };
 
-  const filterTokens = (data, selectedMonth) => {
-    var newTokenData = initToken();
+  const filterTokens = (data, selectedType) => {
+    var newTokenData = initToken(selectedType);
 
     data.map((item) => {
       const date = new Date(item.date.date);
+      let currentDate = new Date();
 
-      if (date.getMonth() + 1 == selectedMonth) {
-        const day = date.getDay();
+      switch (selectedType) {
+        case selector[0]:
+          const currentStartDate = getPrevWeekDate(new Date(), 6);
 
-        newTokenData[day].count += parseInt(item.count);
-        newTokenData[day].amount += parseInt(item.amount);
+          if (dateIsBetween(date, currentStartDate, currentDate)) {
+            const day = date.getDay();
+            newTokenData[day].count = parseInt(item.count);
+          }
+          break;
+        case selector[1]:
+          const firstWeekDate = getPrevWeekDate(new Date(), 49);
+          const secondWeekDate = getPrevWeekDate(new Date(), 42);
+          const thirdWeekDate = getPrevWeekDate(new Date(), 35);
+          const fourthWeekDate = getPrevWeekDate(new Date(), 28);
+          const fifthWeekDate = getPrevWeekDate(new Date(), 21);
+          const sixthWeekDate = getPrevWeekDate(new Date(), 14);
+          const seventhWeekDate = getPrevWeekDate(new Date(), 7);
+
+          if (dateIsBetween(date, firstWeekDate, secondWeekDate)) {
+            newTokenData[0].count += parseInt(item.count);
+          } else if (dateIsBetween(date, secondWeekDate, thirdWeekDate)) {
+            newTokenData[1].count += parseInt(item.count);
+          } else if (dateIsBetween(date, thirdWeekDate, fourthWeekDate)) {
+            newTokenData[2].count += parseInt(item.count);
+          } else if (dateIsBetween(date, fourthWeekDate, fifthWeekDate)) {
+            newTokenData[3].count += parseInt(item.count);
+          } else if (dateIsBetween(date, fifthWeekDate, sixthWeekDate)) {
+            newTokenData[4].count += parseInt(item.count);
+          } else if (dateIsBetween(date, sixthWeekDate, seventhWeekDate)) {
+            newTokenData[5].count += parseInt(item.count);
+          } else if (dateIsBetween(date, seventhWeekDate, currentDate)) {
+            newTokenData[6].count += parseInt(item.count);
+          }
+
+          break;
+        case selector[2]:
+          const currentMonth = currentDate.getMonth();
+          const startingMonth = mod(currentMonth - 6, 12);
+          const month = date.getMonth();
+
+          if (monthIsBetween(month, startingMonth, currentMonth)) {
+            const index = month - startingMonth;
+            newTokenData[index].count += parseInt(item.count);
+          }
+
+          break;
+        default:
+          break;
       }
     });
 
@@ -254,15 +373,15 @@ function Dashboard({ darkTheme }) {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search className={darkTheme && "light-font"} />
+                  <Search className={darkTheme ? "light-font" : ''} />
                 </InputAdornment>
               ),
               endAdornment: (
-                <InputAdornment position='end'>
+                <InputAdornment position="end">
                   <Button
                     onClick={() => fetchData()}
                     variant="contained"
-                    className={darkTheme && "dark-font"}
+                    className={darkTheme ? "dark-font" : ''}
                     style={{
                       backgroundColor: "#00E396",
                       borderRadius: "10px",
@@ -299,12 +418,12 @@ function Dashboard({ darkTheme }) {
           <Chip
             avatar={
               <CheckCircleIcon
-                className={darkTheme && "dark-font"}
+                className={darkTheme ? "dark-font" : ''}
                 style={{ color: "#ffffff" }}
               />
             }
             label="Checked"
-            className={darkTheme && "dark-font"}
+            className={darkTheme ? "dark-font" : ''}
             style={{
               backgroundColor: "#00E396",
               color: "#ffffff",
@@ -317,13 +436,13 @@ function Dashboard({ darkTheme }) {
         <div className="metadata-accordian">
           <Accordion
             className={
-              darkTheme && "table-inner-dark light-font border-radius-dark"
+              darkTheme ? "table-inner-dark light-font border-radius-dark" : ''
             }
             defaultExpanded={true}
           >
             <AccordionSummary
               expandIcon={
-                <ExpandMoreIcon className={darkTheme && "light-font "} />
+                <ExpandMoreIcon className={darkTheme ? "light-font " : ''} />
               }
               aria-controls="metadata-title"
               id="metadata-header"
@@ -349,7 +468,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -369,7 +488,7 @@ function Dashboard({ darkTheme }) {
                           scope="row"
                           style={{ textAlign: "right" }}
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                         >
                           {userInfo.metaData?.tokenType || "unknown"}
@@ -382,7 +501,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -399,7 +518,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -415,7 +534,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -432,7 +551,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -448,7 +567,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -465,7 +584,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -495,7 +614,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -526,7 +645,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -543,7 +662,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -560,7 +679,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -576,7 +695,7 @@ function Dashboard({ darkTheme }) {
                         }}
                       >
                         <TableCell
-                          className={darkTheme && "light-font"}
+                          className={darkTheme ? "light-font" : ''}
                           component="th"
                           scope="row"
                         >
@@ -591,7 +710,7 @@ function Dashboard({ darkTheme }) {
                           </ReactTooltip>
                         </TableCell>
                         <TableCell
-                          className={darkTheme && "light-font"}
+                          className={darkTheme ? "light-font" : ''}
                           component="th"
                           scope="row"
                           style={{ textAlign: "right" }}
@@ -626,13 +745,13 @@ function Dashboard({ darkTheme }) {
         <div className="transactions-accordian">
           <Accordion
             className={
-              darkTheme && "table-inner-dark light-font border-radius-dark"
+              darkTheme ? "table-inner-dark light-font border-radius-dark" : ''
             }
             defaultExpanded={true}
           >
             <AccordionSummary
               expandIcon={
-                <ExpandMoreIcon className={darkTheme && "light-font"} />
+                <ExpandMoreIcon className={darkTheme ? "light-font" : ''} />
               }
               aria-controls="transactions-title"
               id="transactions-header"
@@ -660,7 +779,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -677,7 +796,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -694,7 +813,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -711,7 +830,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -727,7 +846,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -744,7 +863,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -762,7 +881,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -779,7 +898,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -795,7 +914,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -812,7 +931,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -828,7 +947,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -845,7 +964,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -861,7 +980,7 @@ function Dashboard({ darkTheme }) {
                       >
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -878,7 +997,7 @@ function Dashboard({ darkTheme }) {
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                           component="th"
                           scope="row"
@@ -893,7 +1012,7 @@ function Dashboard({ darkTheme }) {
                         }}
                       >
                         <TableCell
-                          className={darkTheme && "light-font"}
+                          className={darkTheme ? "light-font" : ''}
                           component="th"
                           scope="row"
                         >
@@ -908,7 +1027,7 @@ function Dashboard({ darkTheme }) {
                           </ReactTooltip>
                         </TableCell>
                         <TableCell
-                          className={darkTheme && "light-font"}
+                          className={darkTheme ? "light-font" : ''}
                           component="th"
                           scope="row"
                           style={{ textAlign: "right" }}
@@ -930,7 +1049,7 @@ function Dashboard({ darkTheme }) {
         <div className="user-info-accordian">
           <Accordion
             className={
-              darkTheme && "table-inner-dark light-font border-radius-dark"
+              darkTheme ? "table-inner-dark light-font border-radius-dark" : ''
             }
             defaultExpanded={true}
           >
@@ -956,21 +1075,21 @@ function Dashboard({ darkTheme }) {
                       <TableRow>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                         >
                           Owner Balance
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                         >
                           Creation Owner Address
                         </TableCell>
                         <TableCell
                           className={
-                            darkTheme && "light-font table-border-dark"
+                            darkTheme ? "light-font table-border-dark" : ''
                           }
                         >
                           NB Transaction Owner Address
@@ -984,7 +1103,7 @@ function Dashboard({ darkTheme }) {
                         }}
                       >
                         <TableCell
-                          className={darkTheme && "light-font"}
+                          className={darkTheme ? "light-font" : ''}
                           component="th"
                           scope="row"
                         >
@@ -992,14 +1111,14 @@ function Dashboard({ darkTheme }) {
                             "unknown"}
                         </TableCell>
                         <TableCell
-                          className={darkTheme && "light-font"}
+                          className={darkTheme ? "light-font" : ''}
                           component="th"
                           scope="row"
                         >
                           {userInfo.ownerInfo?.ownerAddress || "unknown"}
                         </TableCell>
                         <TableCell
-                          className={darkTheme && "light-font "}
+                          className={darkTheme ? "light-font " : ''}
                           component="th"
                           scope="row"
                         >
@@ -1018,7 +1137,7 @@ function Dashboard({ darkTheme }) {
         <div className="token-chart">
           <Paper
             className={
-              darkTheme && "table-inner-dark light-font border-radius-dark"
+              darkTheme ? "table-inner-dark light-font border-radius-dark" : ''
             }
             style={{ padding: "20px" }}
           >
@@ -1033,22 +1152,22 @@ function Dashboard({ darkTheme }) {
               <Typography style={{ fontWeight: "bold" }}>
                 Number of Unique Caller
               </Typography>
-              <FormControl style={{ width: "5rem" }}>
-                <InputLabel className={darkTheme && "light-font"} id="">
-                  Week
+              <FormControl style={{ width: "7rem" }}>
+                <InputLabel className={darkTheme ? "light-font" : ''} id="">
+                  Type of Data
                 </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={callerMonthSelected}
-                  label="week"
+                  value={callerTypeSelected}
+                  label="typeOfData"
                   onChange={handleCallersChange}
-                  className={darkTheme && "light-font"}
+                  className={darkTheme ? "light-font" : ''}
                   style={{ border: "1px solid" }}
                 >
-                  {[...Array(12).keys()].map((item) => (
-                    <MenuItem key={item} value={item + 1}>
-                      {item + 1}
+                  {selector.map((item) => (
+                    <MenuItem key={item} value={item}>
+                      {item}
                     </MenuItem>
                   ))}
                 </Select>
@@ -1070,9 +1189,8 @@ function Dashboard({ darkTheme }) {
               <XAxis axisLine={false} tickLine={false} dataKey="name" />
               <YAxis axisLine={false} tickLine={false} />
               <Tooltip />
-              <Bar dataKey="external_callers" fill="#00E396" />
-              <Bar dataKey="senders" fill="#008FFB" />
-              <Bar dataKey="txs" fill="#808080" />
+              <Bar dataKey="external_callers" fill="#00FF00" />
+              <Bar dataKey="senders" fill="#FF0000" />
             </BarChart>
           </Paper>
         </div>
@@ -1081,7 +1199,7 @@ function Dashboard({ darkTheme }) {
         <div className="token-chart">
           <Paper
             className={
-              darkTheme && "table-inner-dark light-font border-radius-dark"
+              darkTheme ? "table-inner-dark light-font border-radius-dark" : ''
             }
             style={{ padding: "20px" }}
           >
@@ -1096,22 +1214,22 @@ function Dashboard({ darkTheme }) {
               <Typography style={{ fontWeight: "bold" }}>
                 Number of Token
               </Typography>
-              <FormControl style={{ width: "5rem" }}>
-                <InputLabel className={darkTheme && "light-font"} id="">
-                  Week
+              <FormControl style={{ width: "7rem" }}>
+                <InputLabel className={darkTheme ? "light-font" : ''} id="">
+                  Type of Data
                 </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={tokenMonthSelected}
-                  label="week"
+                  value={tokenTypeSelected}
+                  label="typeOfData"
                   onChange={handleTokenChange}
-                  className={darkTheme && "light-font"}
+                  className={darkTheme ? "light-font" : ''}
                   style={{ border: "1px solid" }}
                 >
-                  {[...Array(12).keys()].map((item) => (
-                    <MenuItem key={item} value={item + 1}>
-                      {item + 1}
+                  {selector.map((item) => (
+                    <MenuItem key={item} value={item}>
+                      {item}
                     </MenuItem>
                   ))}
                 </Select>
@@ -1124,10 +1242,6 @@ function Dashboard({ darkTheme }) {
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
               <defs>
-                <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00E396" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#00E396" stopOpacity={0} />
-                </linearGradient>
                 <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#008FFB" stopOpacity={0.8} />
                   <stop offset="95%" stopColor="#008FFB" stopOpacity={0} />
@@ -1143,13 +1257,6 @@ function Dashboard({ darkTheme }) {
               <Tooltip />
               <Area
                 type="monotone"
-                dataKey="amount"
-                stroke="#00E396"
-                fillOpacity={1}
-                fill="url(#colorAmount)"
-              />
-              <Area
-                type="monotone"
                 dataKey="count"
                 stroke="#008FFB"
                 fillOpacity={1}
@@ -1163,7 +1270,7 @@ function Dashboard({ darkTheme }) {
         <div className="bonus-accordian">
           <Accordion
             className={
-              darkTheme && "table-inner-dark light-font border-radius-dark"
+              darkTheme ? "table-inner-dark light-font border-radius-dark" : ''
             }
             defaultExpanded={true}
           >
@@ -1205,7 +1312,7 @@ function Dashboard({ darkTheme }) {
                     Count number of tweet associated with the address
                   </Typography>
                   <Typography
-                    className={darkTheme && "light-font"}
+                    className={darkTheme ? "light-font" : ''}
                     style={{ color: "#4F4F4F", marginTop: "1rem" }}
                   >
                     Tweets Associated
@@ -1229,8 +1336,8 @@ function Dashboard({ darkTheme }) {
                   <div
                     style={
                       userInfo.bonus?.trustonScore > 0
-                        ? { color: "green", marginLeft: '0.5rem' }
-                        : { color: "red", marginLeft: '0.5rem' }
+                        ? { color: "green", marginLeft: '0.5rem'}
+                        : { color: "red",marginLeft: '0.5rem' }
                     }
                     className="progress-text"
                   >
@@ -1247,3 +1354,5 @@ function Dashboard({ darkTheme }) {
 }
 
 export default Dashboard;
+
+// background: "linear-gradient(to top bottom, #430089, #82ffa1)"

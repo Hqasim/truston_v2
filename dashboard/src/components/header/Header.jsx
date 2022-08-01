@@ -24,10 +24,6 @@ function Header({ darkTheme, setDarkTheme }) {
     setUser(event.target.value);
   };
 
-  useEffect(() => {
-    console.log(darkTheme)
-  })
-
   return (
     <AppBar position="static" className={darkTheme ? 'dark-bg' : 'light-bg'}>
       <Toolbar>
@@ -36,15 +32,15 @@ function Header({ darkTheme, setDarkTheme }) {
         </Typography>
         <Stack direction="row" spacing={2}>
           <Badge badgeContent={3} color='warning' style={{marginTop: '1rem', marginRight: '1rem'}}>
-            <MailIcon className={darkTheme && 'light-font'} color="action"/>
+            <MailIcon className={darkTheme ? 'light-font' : ''} color="action"/>
           </Badge>
           <Badge badgeContent={3} color="warning" style={{marginTop: '1rem', marginRight: '1rem'}}>
-            <BellIcon className={darkTheme && 'light-font'} color="action" />
+            <BellIcon className={darkTheme ? 'light-font' : ''} color="action" />
           </Badge>
           <Avatar alt="User Avatar" src={UserAvatar} style={{marginTop:'0.2rem'}}/>
           <Box sx={{ minWidth: 125}}>
             <FormControl fullWidth variant='standard'>
-              <InputLabel id="demo-simple-select-label" className={darkTheme && 'light-font'} >Jenny Wilson</InputLabel>
+              <InputLabel id="demo-simple-select-label" className={darkTheme ? 'light-font' : ''} >Jenny Wilson</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -52,7 +48,7 @@ function Header({ darkTheme, setDarkTheme }) {
                 label="user"
                 onChange={handleUserChange}
                 disableUnderline
-                className={darkTheme && 'light-font'}
+                className={darkTheme ? 'light-font' : ''}
               >
                 <MenuItem value={10}>Ten</MenuItem>
                 <MenuItem value={20}>Twenty</MenuItem>

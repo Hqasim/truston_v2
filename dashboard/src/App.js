@@ -10,7 +10,7 @@ function App() {
   const [darkTheme, setDarkTheme] = useState(false)
 
   return (
-    <div className={darkTheme && 'full-dark-bg'}>
+    <div className={darkTheme ? 'full-dark-bg' : ''}>
       <Header darkTheme={darkTheme} setDarkTheme={setDarkTheme} />
       <Dashboard darkTheme={darkTheme} />
       <ToastContainer position='bottom-right' hideProgressBar='true' theme={darkTheme ? 'dark' : 'light'}  />

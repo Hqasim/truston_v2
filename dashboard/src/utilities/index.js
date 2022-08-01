@@ -12,3 +12,7 @@ export function isUndefined(str) {
 
   return false
 }
+
+export function mod(n, m) {
+  return ((n % m) + m) % m;
+}
